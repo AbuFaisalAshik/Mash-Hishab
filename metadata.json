@@ -1,0 +1,6 @@
+{
+  "name": "Mash Khoroch (মাস খরচ)",
+  "description": "একটি আধুনিক ও চমৎকার মাসিক খরচ ও বাজেট ট্র্যাকার — Bangladesh-flag green UI with Gmail & Password login, 12-word seed phrase account recovery, and per-user cloud sync.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
