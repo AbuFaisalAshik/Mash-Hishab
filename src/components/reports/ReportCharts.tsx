@@ -48,7 +48,7 @@ export const CategoryDonutChart: React.FC<CategoryChartProps> = ({
 
   if (sortedCategories.length === 0 || totalExpense <= 0) {
     return (
-      <div className="py-8 text-center text-slate-400 text-sm">
+      <div className="py-8 text-center text-slate-500 text-sm">
         {lang === 'bn' ? 'কোন খরচের ডেটা নেই' : 'No expense data available'}
       </div>
     );
@@ -81,7 +81,7 @@ export const CategoryDonutChart: React.FC<CategoryChartProps> = ({
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
         {/* SVG Donut Chart */}
-        <div className="relative w-52 h-52 flex items-center justify-center">
+        <div className="relative w-48 h-48 flex items-center justify-center">
           <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 200 200">
             {/* Background ring */}
             <circle
@@ -89,8 +89,7 @@ export const CategoryDonutChart: React.FC<CategoryChartProps> = ({
               cy={center}
               r={radius}
               fill="transparent"
-              stroke="currentColor"
-              className="text-slate-100 dark:text-slate-800/60"
+              stroke="#E2E8F0"
               strokeWidth={strokeWidth}
             />
 
@@ -118,7 +117,7 @@ export const CategoryDonutChart: React.FC<CategoryChartProps> = ({
 
           {/* Center Info Display */}
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none px-4">
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            <span className="text-xs text-slate-500 font-medium">
               {hoveredCategory
                 ? sortedCategories.find((c) => c.category.id === hoveredCategory)?.category[
                     lang === 'bn' ? 'defaultNameBn' : 'defaultNameEn'
@@ -127,7 +126,7 @@ export const CategoryDonutChart: React.FC<CategoryChartProps> = ({
                 ? 'মোট খরচ'
                 : 'Total Expense'}
             </span>
-            <span className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+            <span className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
               {hoveredCategory
                 ? formatMoney(
                     sortedCategories.find((c) => c.category.id === hoveredCategory)?.amount || 0,
@@ -136,7 +135,7 @@ export const CategoryDonutChart: React.FC<CategoryChartProps> = ({
                 : formatMoney(totalExpense, lang)}
             </span>
             {hoveredCategory && (
-              <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
+              <span className="text-[11px] font-bold text-emerald-700 mt-0.5">
                 {lang === 'bn'
                   ? `${toBengaliNumerals(
                       sortedCategories.find((c) => c.category.id === hoveredCategory)?.amount
@@ -170,26 +169,26 @@ export const CategoryDonutChart: React.FC<CategoryChartProps> = ({
                 onMouseLeave={() => setHoveredCategory(null)}
                 className={`flex items-center justify-between p-2 rounded-xl transition-all cursor-pointer ${
                   isHovered
-                    ? 'bg-emerald-50 dark:bg-slate-800/80 border border-emerald-300 dark:border-slate-700/80 shadow-xs'
-                    : 'bg-slate-50 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-800/40'
+                    ? 'bg-emerald-50 border border-emerald-300 shadow-2xs'
+                    : 'bg-slate-50 hover:bg-slate-100 border border-slate-100'
                 }`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 shadow-xs"
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 shadow-2xs"
                     style={{ backgroundColor: seg.category.color }}
                   >
                     <IconRenderer name={seg.category.icon} className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                  <span className="text-xs font-semibold text-slate-800 truncate">
                     {lang === 'bn' ? seg.category.defaultNameBn : seg.category.defaultNameEn}
                   </span>
                 </div>
                 <div className="text-right shrink-0">
-                  <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                  <span className="text-xs font-bold text-slate-900">
                     {formatMoney(seg.amount, lang)}
                   </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 ml-1.5 font-medium">
+                  <span className="text-[11px] text-slate-500 ml-1.5 font-medium">
                     ({lang === 'bn' ? toBengaliNumerals(seg.percentage) : seg.percentage}%)
                   </span>
                 </div>
@@ -240,48 +239,53 @@ export const DailySpendingBarChart: React.FC<DailyTrendChartProps> = ({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+      <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
         <span>{lang === 'bn' ? 'গত ১৪ দিনের দৈনিক খরচ' : 'Daily spending (Last 14 days)'}</span>
-        <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
-          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span className="flex items-center gap-1 text-emerald-700 font-bold">
+          <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
           {lang === 'bn' ? 'দৈনিক গড়: ' : 'Avg: '} {formatMoney(dailyAverage, lang)}
         </span>
       </div>
 
-      <div className="h-44 flex items-end justify-between gap-1.5 pt-4 pb-2 px-2 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-white/5">
+      <div className="h-44 flex items-end justify-between gap-1.5 pt-4 pb-2 px-2 bg-slate-50 rounded-2xl border border-slate-200">
         {days.map((d, index) => {
           const heightPercent = Math.min(100, Math.round((d.amount / maxAmount) * 100));
           const isToday = index === days.length - 1;
           const isHigh = d.amount > dailyAverage && d.amount > 0;
 
           return (
-            <div key={d.dateStr} className="flex-1 flex flex-col items-center h-full justify-end group relative">
+            <div
+              key={d.dateStr}
+              className="flex-1 flex flex-col items-center h-full justify-end group relative"
+            >
               {/* Tooltip */}
-              <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 dark:bg-slate-950 text-white text-[10px] py-1 px-2 rounded-lg border border-slate-700 whitespace-nowrap pointer-events-none z-20 shadow-lg">
+              <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[10px] py-1 px-2 rounded-lg border border-slate-700 whitespace-nowrap pointer-events-none z-20 shadow-md">
                 <p className="font-semibold">{formatDate(d.dateStr, lang, { short: true })}</p>
-                <p className="text-emerald-400 font-bold">{formatMoney(d.amount, lang)}</p>
+                <p className="text-emerald-300 font-bold">{formatMoney(d.amount, lang)}</p>
               </div>
 
-              {/* Bar with spring animation */}
-              <div className="w-full max-w-[14px] bg-slate-200 dark:bg-slate-800/60 rounded-t-md relative flex items-end h-full">
-                <motion.div
-                  initial={{ height: 0 }}
-                  animate={{ height: `${Math.max(6, heightPercent)}%` }}
-                  transition={{ duration: 0.5, delay: index * 0.02 }}
-                  className={`w-full rounded-t-md ${
+              {/* Bar with animation */}
+              <div className="w-full max-w-[14px] bg-slate-200 rounded-t-md relative flex items-end h-full">
+                <div
+                  style={{ height: `${Math.max(6, heightPercent)}%` }}
+                  className={`w-full rounded-t-md transition-all duration-500 ${
                     d.amount === 0
-                      ? 'bg-slate-300 dark:bg-slate-800'
+                      ? 'bg-slate-300'
                       : isToday
-                      ? 'bg-emerald-500 ring-2 ring-emerald-500/30 shadow-xs'
+                      ? 'bg-emerald-600 ring-2 ring-emerald-400/40 shadow-xs'
                       : isHigh
-                      ? 'bg-gradient-to-t from-rose-600 to-rose-400'
-                      : 'bg-gradient-to-t from-emerald-600 to-teal-400'
+                      ? 'bg-rose-500'
+                      : 'bg-emerald-500'
                   }`}
                 />
               </div>
 
               {/* Day Label */}
-              <span className={`text-[10px] mt-1.5 font-semibold ${isToday ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-500 dark:text-slate-400'}`}>
+              <span
+                className={`text-[10px] mt-1.5 font-semibold ${
+                  isToday ? 'text-emerald-800 font-bold' : 'text-slate-500'
+                }`}
+              >
                 {lang === 'bn' ? toBengaliNumerals(d.dayNumber) : d.dayNumber}
               </span>
             </div>

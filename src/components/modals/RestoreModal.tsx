@@ -95,27 +95,27 @@ export const RestoreModal: React.FC<RestoreModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-xs">
       <motion.div
-        initial={{ opacity: 0, scale: 0.94, y: 10 }}
+        initial={{ opacity: 0, scale: 0.96, y: 8 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.94, y: 10 }}
-        className="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
+        exit={{ opacity: 0, scale: 0.96, y: 8 }}
+        className="w-full max-w-lg bg-white border border-slate-200 rounded-3xl shadow-xl overflow-hidden flex flex-col max-h-[92vh]"
       >
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-slate-50 dark:bg-slate-900/80">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
               <IconRenderer name="Upload" className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">{t(lang, 'importDataTitle')}</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{t(lang, 'importDataDesc')}</p>
+              <h2 className="text-base font-bold text-slate-900">{t(lang, 'importDataTitle')}</h2>
+              <p className="text-xs text-slate-500 font-medium">{t(lang, 'importDataDesc')}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <IconRenderer name="X" className="w-5 h-5" />
           </button>
@@ -124,7 +124,7 @@ export const RestoreModal: React.FC<RestoreModalProps> = ({
         {/* Content */}
         <div className="p-5 overflow-y-auto space-y-4 flex-1">
           {error && (
-            <div className="p-3.5 bg-rose-500/15 border border-rose-500/30 rounded-xl text-xs text-rose-700 dark:text-rose-300 flex items-start gap-2">
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-semibold flex items-start gap-2">
               <IconRenderer name="AlertTriangle" className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
@@ -132,45 +132,50 @@ export const RestoreModal: React.FC<RestoreModalProps> = ({
 
           {/* File Upload Box */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
+            <label className="block text-xs font-bold text-slate-700 mb-2">
               {lang === 'bn' ? '১. ব্যাকআপ ফাইল আপলোড করুন (.json)' : '1. Upload Backup File (.json)'}
             </label>
-            <label className="flex flex-col items-center justify-center gap-2 p-5 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 rounded-2xl bg-slate-50 dark:bg-slate-950/40 hover:bg-slate-100 dark:hover:bg-slate-800/30 cursor-pointer transition-all text-center group">
-              <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 group-hover:bg-emerald-500/20 text-slate-600 dark:text-slate-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 flex items-center justify-center transition-colors">
+            <label className="flex flex-col items-center justify-center gap-2 p-5 border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-2xl bg-slate-50 hover:bg-slate-100 cursor-pointer transition-all text-center group">
+              <div className="w-10 h-10 rounded-full bg-slate-200 group-hover:bg-emerald-100 text-slate-600 group-hover:text-emerald-700 flex items-center justify-center transition-colors">
                 <IconRenderer name="FileText" className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                  {fileName ? fileName : lang === 'bn' ? 'JSON ব্যাকআপ ফাইল নির্বাচন করুন' : 'Select JSON backup file'}
-                </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                  {lang === 'bn' ? 'ক্লিক করে ফাইল ব্রাউজ করুন' : 'Click to browse files'}
-                </p>
+                <span className="text-xs font-bold text-slate-800 block">
+                  {fileName ? fileName : lang === 'bn' ? 'ফাইল সিলেক্ট করতে ক্লিক করুন' : 'Click to choose file'}
+                </span>
+                <span className="text-[11px] text-slate-500 mt-0.5 block font-medium">
+                  {fileName ? (lang === 'bn' ? 'ফাইল রেডি' : 'Ready to restore') : '.json format only'}
+                </span>
               </div>
-              <input type="file" accept=".json" onChange={handleFileUpload} className="hidden" />
+              <input
+                type="file"
+                accept=".json,application/json"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
             </label>
           </div>
 
-          {/* Seed phrase entry */}
+          {/* Seed Phrase Input (if required) */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-              {lang === 'bn' ? '২. সিক্রেট Seed Phrase (যদি এনক্রিপ্টেড হয়)' : '2. Secret Seed Phrase (If encrypted)'}
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              {lang === 'bn' ? '২. আপনার ১২-শব্দের Seed Phrase লিখুন (এনক্রিপ্ট ব্যাকআপের জন্য)' : '2. 12-Word Seed Phrase (For encrypted backups)'}
             </label>
             <textarea
-              rows={3}
+              rows={2}
               value={seedPhrase}
               onChange={(e) => setSeedPhrase(e.target.value)}
-              placeholder={lang === 'bn' ? 'আপনার ১২টি সিক্রেট শব্দ লিখুন (যেমন: ability absent absorb...)' : 'Enter your 12 secret words separated by spaces...'}
-              className="w-full bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-700/60 rounded-xl p-3 text-xs font-mono text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-emerald-500"
+              placeholder="word1 word2 word3 ... word12"
+              className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-xl p-3 text-xs font-mono text-slate-900 focus:outline-none resize-none"
             />
           </div>
 
-          {/* Action Buttons */}
+          {/* Buttons */}
           <div className="pt-2 flex items-center gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+              className="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 cursor-pointer"
             >
               {t(lang, 'btnCancel')}
             </button>
@@ -178,10 +183,16 @@ export const RestoreModal: React.FC<RestoreModalProps> = ({
               type="button"
               disabled={!fileContent || isLoading}
               onClick={handleRestore}
-              className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 disabled:opacity-50 text-white text-xs font-bold shadow-lg shadow-emerald-900/20 dark:shadow-emerald-950 flex items-center justify-center gap-2 cursor-pointer"
+              className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-700 disabled:opacity-40 hover:bg-emerald-600 text-white text-xs font-bold shadow-xs flex items-center justify-center gap-2 cursor-pointer"
             >
-              <IconRenderer name="Upload" className="w-4 h-4" />
-              <span>{isLoading ? (lang === 'bn' ? 'পুনরুদ্ধার হচ্ছে...' : 'Restoring...') : (lang === 'bn' ? 'ডেটা রিস্টোর করুন' : 'Restore Backup')}</span>
+              {isLoading ? (
+                <span>{lang === 'bn' ? 'যাচাই হচ্ছে...' : 'Decrypting...'}</span>
+              ) : (
+                <>
+                  <IconRenderer name="Upload" className="w-4 h-4" />
+                  <span>{t(lang, 'btnRestoreBackup')}</span>
+                </>
+              )}
             </button>
           </div>
         </div>

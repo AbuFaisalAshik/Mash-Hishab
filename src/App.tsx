@@ -15,7 +15,6 @@ import {
   exportCsvData,
   exportJsonBackup,
   clearAllData,
-  getInitialDemoState,
 } from './lib/storage';
 import { authApi, dataApi, AuthUser } from './lib/api';
 import { AuthScreen } from './components/auth/AuthScreen';
@@ -84,6 +83,11 @@ export default function App() {
     checkSession();
   }, []);
 
+  // Ensure DOM is in light mode
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+  }, []);
+
   // Synchronize state with LocalStorage and Server
   const updateState = useCallback(
     (newState: AppStateData) => {
@@ -145,25 +149,6 @@ export default function App() {
 
   const user = appState.user;
   const lang: Language = user.preferredLanguage || 'bn';
-  const [themeMode, setThemeMode] = useState<ThemeMode>(() => user.themeMode || 'dark');
-
-  // Synchronize Theme Mode with Document Class
-  useEffect(() => {
-    if (themeMode === 'light') {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-    } else {
-      document.documentElement.classList.remove('light');
-      document.documentElement.classList.add('dark');
-    }
-  }, [themeMode]);
-
-  const handleToggleTheme = () => {
-    const nextTheme: ThemeMode = themeMode === 'dark' ? 'light' : 'dark';
-    setThemeMode(nextTheme);
-    const updatedUser = { ...user, themeMode: nextTheme };
-    updateState({ ...appState, user: updatedUser });
-  };
 
   // Ensure current month account exists in state
   const activeAccount = useMemo(() => {
@@ -218,6 +203,7 @@ export default function App() {
       preferredLanguage: data.preferredLanguage,
       onboardingCompleted: true,
       seedBackupEnabled: data.enableSeedBackup,
+      themeMode: 'light',
     };
 
     const updatedAccounts = appState.accounts.map((acc) => {
@@ -406,16 +392,16 @@ export default function App() {
   // Loading Splash while verifying initial session
   if (isCheckingAuth) {
     return (
-      <div className="min-h-screen bg-[#080D0F] flex flex-col items-center justify-center p-6 text-white font-kalpurush">
-        <div className="w-12 h-12 border-3 border-emerald-500/20 border-t-emerald-400 rounded-full animate-spin mb-4" />
-        <p className="text-sm text-emerald-400/80 font-medium">নিরাপত্তা যাচাই হচ্ছে...</p>
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-900">
+        <div className="w-10 h-10 border-3 border-emerald-600/20 border-t-emerald-700 rounded-full animate-spin mb-4" />
+        <p className="text-sm text-slate-600 font-semibold">নিরাপত্তা যাচাই হচ্ছে...</p>
       </div>
     );
   }
 
   // If user is not authenticated, display the unified AuthScreen
   if (!currentUser) {
-    return <AuthScreen onAuthSuccess={handleAuthSuccess} />;
+    return <AuthScreen lang={lang} onLanguageToggle={() => handleLanguageChange(lang === 'bn' ? 'en' : 'bn')} onAuthSuccess={handleAuthSuccess} />;
   }
 
   // Render First Launch Onboarding Wizard if not completed
@@ -424,14 +410,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#080D0F] text-slate-100 dark:bg-[#080D0F] dark:text-slate-100 light:bg-[#F4F7F6] light:text-slate-900 font-kalpurush antialiased selection:bg-emerald-500 selection:text-slate-950 transition-colors">
-      {/* Background Ambience / Emerald & Mint glowing atmosphere */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-96 bg-emerald-500/10 dark:bg-emerald-500/10 light:bg-emerald-100/50 rounded-full blur-3xl" />
-        <div className="absolute top-80 right-0 w-80 h-80 bg-teal-500/10 dark:bg-teal-500/10 light:bg-teal-100/40 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 left-0 w-72 h-72 bg-lime-500/8 dark:bg-lime-500/8 light:bg-lime-100/30 rounded-full blur-3xl" />
-      </div>
-
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased selection:bg-emerald-100 selection:text-emerald-900">
       {/* Main Container */}
       <div className="relative z-10 max-w-lg mx-auto min-h-screen flex flex-col px-4 sm:px-5 pt-3 pb-24">
         {/* View Switcher */}
@@ -444,8 +423,6 @@ export default function App() {
               insights={insights}
               user={user}
               lang={lang}
-              themeMode={themeMode}
-              onToggleTheme={handleToggleTheme}
               onOpenAddExpense={() => setIsAddExpenseOpen(true)}
               onOpenAddMoney={() => setIsAddMoneyOpen(true)}
               onOpenEditTransaction={(tx) => setEditingTransaction(tx)}

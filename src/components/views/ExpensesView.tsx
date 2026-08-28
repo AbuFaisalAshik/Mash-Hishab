@@ -23,7 +23,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   onOpenEditTransaction,
 }) => {
   const [selectedCatId, setSelectedCatId] = useState<string>('all');
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('all');
+  const [selectedPaymentMethod] = useState<string>('all');
 
   const expenseTransactions = transactions.filter((t) => t.type === 'expense');
 
@@ -37,7 +37,8 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   // Calculate category spend map
   const categorySpendMap: Record<string, number> = {};
   expenseTransactions.forEach((t) => {
-    categorySpendMap[t.categoryId] = (categorySpendMap[t.categoryId] || 0) + Math.round(t.amount || 0);
+    categorySpendMap[t.categoryId] =
+      (categorySpendMap[t.categoryId] || 0) + Math.round(t.amount || 0);
   });
 
   // Group transactions by date
@@ -53,37 +54,36 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
-      className="space-y-5 pb-24"
+      transition={{ duration: 0.25 }}
+      className="space-y-4 pb-20"
     >
       {/* Header & Quick Add */}
-      <div className="flex items-center justify-between pt-1">
+      <div className="flex items-center justify-between pt-2">
         <div>
-          <h1 className="text-xl font-bold text-slate-100 tracking-tight">
+          <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
             {t(lang, 'navExpenses')}
           </h1>
-          <p className="text-xs text-slate-400">
-            {t(lang, 'totalSpent')}: <span className="font-bold text-rose-400">{formatMoney(summary.totalExpenses, lang)}</span>
+          <p className="text-xs text-slate-500 font-medium">
+            {t(lang, 'totalSpent')}:{' '}
+            <strong className="text-rose-600 font-bold">{formatMoney(summary.totalExpenses, lang)}</strong>
           </p>
         </div>
 
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+        <button
           type="button"
           onClick={onOpenAddExpense}
-          className="py-2 px-3.5 rounded-full bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-400 text-white font-bold text-xs shadow-md shadow-red-950 flex items-center gap-1.5 cursor-pointer"
+          className="py-2 px-3.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105 active:scale-95"
         >
           <IconRenderer name="Plus" className="w-4 h-4" />
           <span>{t(lang, 'btnAddExpense')}</span>
-        </motion.button>
+        </button>
       </div>
 
       {/* Category Pills Horizontal Scroll */}
       <div className="space-y-1.5">
-        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block px-0.5">
+        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block px-0.5">
           {t(lang, 'filterCategory')}
         </span>
         <div className="flex items-center gap-2 overflow-x-auto pb-1.5 no-scrollbar">
@@ -92,11 +92,15 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
             onClick={() => setSelectedCatId('all')}
             className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
               selectedCatId === 'all'
-                ? 'bg-slate-100 text-slate-950 font-bold shadow-sm'
-                : 'bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-slate-200'
+                ? 'bg-emerald-600 text-white shadow-2xs'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
             }`}
           >
-            {t(lang, 'filterAll')} ({lang === 'bn' ? toBengaliNumerals(expenseTransactions.length) : expenseTransactions.length})
+            {t(lang, 'filterAll')} (
+            {lang === 'bn'
+              ? toBengaliNumerals(expenseTransactions.length)
+              : expenseTransactions.length}
+            )
           </button>
 
           {categories
@@ -112,14 +116,17 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                   onClick={() => setSelectedCatId(cat.id)}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-emerald-500 text-white border-emerald-400 font-bold shadow-xs'
-                      : 'bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200'
+                      ? 'bg-emerald-600 text-white border-emerald-600 font-bold shadow-2xs'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >
-                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ backgroundColor: cat.color }}
+                  />
                   <span>{lang === 'bn' ? cat.defaultNameBn : cat.defaultNameEn}</span>
                   {spend > 0 && (
-                    <span className="text-[10px] text-slate-400 font-mono">
+                    <span className="text-[10px] opacity-90 font-mono">
                       {formatMoney(spend, lang)}
                     </span>
                   )}
@@ -132,21 +139,20 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
       {/* Date-Grouped Transaction Cards */}
       <div className="space-y-4">
         {sortedDates.length === 0 ? (
-          <div className="fintech-card rounded-3xl p-8 text-center space-y-3 border border-dashed border-slate-800">
+          <div className="bg-white rounded-3xl p-8 text-center space-y-3 border border-dashed border-slate-200">
             <EmptyListGraphic />
             <div className="space-y-1">
-              <p className="text-sm font-bold text-slate-200">{t(lang, 'emptyExpensesTitle')}</p>
-              <p className="text-xs text-slate-400">{t(lang, 'emptyExpensesDesc')}</p>
+              <p className="text-sm font-bold text-slate-800">{t(lang, 'emptyExpensesTitle')}</p>
+              <p className="text-xs text-slate-500">{t(lang, 'emptyExpensesDesc')}</p>
             </div>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
+            <button
               type="button"
               onClick={onOpenAddExpense}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-xs shadow-sm cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs cursor-pointer"
             >
               <IconRenderer name="Plus" className="w-4 h-4" />
               <span>{t(lang, 'btnAddExpense')}</span>
-            </motion.button>
+            </button>
           </div>
         ) : (
           sortedDates.map((dateStr) => {
@@ -157,10 +163,10 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
               <div key={dateStr} className="space-y-2">
                 {/* Date Group Header */}
                 <div className="flex items-center justify-between px-1">
-                  <span className="text-xs font-bold text-slate-300">
+                  <span className="text-xs font-bold text-slate-700">
                     {formatDate(dateStr, lang)}
                   </span>
-                  <span className="text-xs font-semibold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2.5 py-0.5 rounded-full">
+                  <span className="text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-0.5 rounded-full">
                     {t(lang, 'dayTotal', { amount: formatMoney(dayTotal, lang) })}
                   </span>
                 </div>
@@ -180,42 +186,40 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                     };
 
                     return (
-                      <motion.div
+                      <div
                         key={tx.id}
-                        whileHover={{ scale: 1.01 }}
-                        whileTap={{ scale: 0.99 }}
                         onClick={() => onOpenEditTransaction(tx)}
-                        className="p-3.5 fintech-card hover:border-emerald-500/30 rounded-2xl flex items-center justify-between gap-3 cursor-pointer transition-all shadow-xs"
+                        className="p-3 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-2xl flex items-center justify-between gap-3 cursor-pointer transition-all shadow-2xs hover:border-slate-300"
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <div
-                            className="w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm"
+                            className="w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0 shadow-2xs"
                             style={{ backgroundColor: cat.color }}
                           >
                             <IconRenderer name={cat.icon} className="w-4 h-4 text-white" />
                           </div>
 
                           <div className="min-w-0">
-                            <p className="text-xs font-bold text-slate-100 truncate">
+                            <p className="text-xs font-bold text-slate-900 truncate">
                               {tx.note || (lang === 'bn' ? cat.defaultNameBn : cat.defaultNameEn)}
                             </p>
-                            <div className="flex items-center gap-1.5 text-[11px] text-slate-400 mt-0.5">
+                            <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mt-0.5">
                               <span>{lang === 'bn' ? cat.defaultNameBn : cat.defaultNameEn}</span>
                               <span>•</span>
                               <span className="uppercase text-[10px]">{tx.paymentMethod}</span>
                               {tx.receiptUri && (
-                                <span className="text-emerald-400 font-bold">• 📷</span>
+                                <span className="text-emerald-600 font-bold">• 📷</span>
                               )}
                             </div>
                           </div>
                         </div>
 
                         <div className="text-right shrink-0">
-                          <span className="text-sm font-extrabold text-rose-400 font-sans block">
+                          <span className="text-sm font-extrabold text-rose-600 font-sans block">
                             - {formatMoney(tx.amount, lang)}
                           </span>
                         </div>
-                      </motion.div>
+                      </div>
                     );
                   })}
                 </div>

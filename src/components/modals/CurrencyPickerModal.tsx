@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { CurrencyOption, Language } from '../../types';
 import { WORLD_CURRENCIES } from '../../lib/currencies';
 import { IconRenderer } from '../common/IconRenderer';
@@ -67,12 +67,20 @@ export const CurrencyPickerModal: React.FC<CurrencyPickerModalProps> = ({
     const flag = customFlag.trim() || '🌐';
 
     if (!code) {
-      setFormError(lang === 'bn' ? 'কারেন্সি কোড দিন (যেমন: USD, BDT, EUR)' : 'Enter currency code (e.g. USD, BDT, EUR)');
+      setFormError(
+        lang === 'bn'
+          ? 'কারেন্সি কোড দিন (যেমন: USD, BDT, EUR)'
+          : 'Enter currency code (e.g. USD, BDT, EUR)'
+      );
       return;
     }
 
     if (!symbol) {
-      setFormError(lang === 'bn' ? 'কারেন্সি প্রতীক দিন (যেমন: $, ৳, €, £)' : 'Enter currency symbol (e.g. $, ৳, €, £)');
+      setFormError(
+        lang === 'bn'
+          ? 'কারেন্সি প্রতীক দিন (যেমন: $, ৳, €, £)'
+          : 'Enter currency symbol (e.g. $, ৳, €, £)'
+      );
       return;
     }
 
@@ -101,39 +109,41 @@ export const CurrencyPickerModal: React.FC<CurrencyPickerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-xs">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        initial={{ opacity: 0, scale: 0.96, y: 8 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 10 }}
-        className="w-full max-w-md bg-slate-900 border border-emerald-500/20 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        exit={{ opacity: 0, scale: 0.96, y: 8 }}
+        className="w-full max-w-md bg-white border border-slate-200 rounded-3xl shadow-xl overflow-hidden flex flex-col max-h-[85vh]"
       >
         {/* Modal Header */}
-        <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm">
+            <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-800 font-extrabold text-sm shadow-2xs">
               {selectedCurrencySymbol || '৳'}
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white">
-                {lang === 'bn' ? 'কারেন্সি ও মুদ্রা নির্বাচন' : 'Select Currency'}
+              <h2 className="text-sm font-bold text-slate-900">
+                {lang === 'bn' ? 'কারেন্সি নির্বাচন' : 'Select Currency'}
               </h2>
-              <p className="text-[11px] text-slate-400">
-                {lang === 'bn' ? 'যেকোনো দেশের কারেন্সি ব্যবহার বা যুক্ত করুন' : 'Choose or add any world currency'}
+              <p className="text-[11px] text-slate-500 font-medium">
+                {lang === 'bn'
+                  ? 'যেকোনো দেশের মুদ্রা নির্বাচন বা নিজে তৈরি করুন'
+                  : 'Choose or add any world currency'}
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
           >
             <IconRenderer name="X" className="w-4 h-4" />
           </button>
         </div>
 
         {/* Search Bar & Custom Add Toggle */}
-        <div className="p-4 border-b border-slate-800/80 space-y-2.5 bg-slate-900/50">
+        <div className="p-4 border-b border-slate-100 space-y-2 bg-white">
           <div className="relative">
             <IconRenderer
               name="Search"
@@ -141,16 +151,18 @@ export const CurrencyPickerModal: React.FC<CurrencyPickerModalProps> = ({
             />
             <input
               type="text"
-              placeholder={lang === 'bn' ? 'দেশ, কোড বা প্রতীক খুঁজুন...' : 'Search currency, code or symbol...'}
+              placeholder={
+                lang === 'bn' ? 'দেশ, কোড বা প্রতীক খুঁজুন...' : 'Search currency, code or symbol...'
+              }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500/60 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none transition-colors"
+              className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none transition-colors"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 text-xs"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
               >
                 ✕
               </button>
@@ -161,38 +173,42 @@ export const CurrencyPickerModal: React.FC<CurrencyPickerModalProps> = ({
           <button
             type="button"
             onClick={() => setIsAddingCustom(!isAddingCustom)}
-            className="w-full py-2 px-3 rounded-xl bg-emerald-950/50 hover:bg-emerald-900/50 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
+            className="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
           >
             <IconRenderer name={isAddingCustom ? 'ChevronUp' : 'Plus'} className="w-3.5 h-3.5" />
             <span>
               {isAddingCustom
-                ? (lang === 'bn' ? 'তালিকা দেখুন' : 'View List')
-                : (lang === 'bn' ? '+ যেকোনো দেশের কারেন্সি নিজে যুক্ত করুন' : '+ Add Custom Currency')}
+                ? lang === 'bn'
+                  ? 'কারেন্সি তালিকা দেখুন'
+                  : 'View Currency List'
+                : lang === 'bn'
+                ? '+ যেকোনো দেশের কারেন্সি নিজে যুক্ত করুন'
+                : '+ Add Custom Currency'}
             </span>
           </button>
         </div>
 
         {/* Modal Content: Custom Currency Form OR Currency Grid List */}
-        <div className="p-4 overflow-y-auto flex-1 space-y-2.5 max-h-[50vh]">
+        <div className="p-4 overflow-y-auto flex-1 space-y-2 max-h-[50vh]">
           {isAddingCustom ? (
             <form onSubmit={handleSaveCustom} className="space-y-3">
-              <div className="p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-2xl">
-                <p className="text-[11px] text-emerald-300 font-medium">
+              <div className="p-3 bg-emerald-50/80 border border-emerald-200 rounded-2xl">
+                <p className="text-[11px] text-emerald-800 font-medium leading-relaxed">
                   {lang === 'bn'
-                    ? 'আপনার পছন্দের যেকোনো দেশের মুদ্রা কোড ও প্রতীক লিখুন। এটি সাথে সাথে অ্যাপ জুড়ে সক্রিয় হবে।'
-                    : 'Enter any country currency code & symbol. It will immediately apply across the app.'}
+                    ? 'আপনার পছন্দের যেকোনো দেশের মুদ্রা কোড ও প্রতীক লিখুন। এটি সাথে সাথে পুরো অ্যাপে প্রযোজ্য হবে।'
+                    : 'Enter any country currency code & symbol. It will immediately apply across the entire app.'}
                 </p>
               </div>
 
               {formError && (
-                <div className="p-2.5 bg-rose-500/20 border border-rose-500/40 rounded-xl text-xs text-rose-300">
+                <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-medium">
                   {formError}
                 </div>
               )}
 
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                  <label className="text-[11px] font-bold text-slate-700 block mb-1">
                     {lang === 'bn' ? 'কারেন্সি কোড *' : 'Currency Code *'}
                   </label>
                   <input
@@ -202,12 +218,12 @@ export const CurrencyPickerModal: React.FC<CurrencyPickerModalProps> = ({
                     onChange={(e) => setCustomCode(e.target.value.toUpperCase())}
                     maxLength={6}
                     required
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-white font-mono uppercase focus:outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono uppercase focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                  <label className="text-[11px] font-bold text-slate-700 block mb-1">
                     {lang === 'bn' ? 'মুদ্রা প্রতীক *' : 'Currency Symbol *'}
                   </label>
                   <input
@@ -217,14 +233,14 @@ export const CurrencyPickerModal: React.FC<CurrencyPickerModalProps> = ({
                     onChange={(e) => setCustomSymbol(e.target.value)}
                     maxLength={5}
                     required
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-white font-bold focus:outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-slate-900 font-bold focus:outline-none"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-2.5">
                 <div className="col-span-2">
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                  <label className="text-[11px] font-bold text-slate-700 block mb-1">
                     {lang === 'bn' ? 'কারেন্সির নাম (বাংলা)' : 'Currency Name (BN)'}
                   </label>
                   <input
@@ -232,13 +248,13 @@ export const CurrencyPickerModal: React.FC<CurrencyPickerModalProps> = ({
                     placeholder="যেমন: কুয়েতি দিনার"
                     value={customNameBn}
                     onChange={(e) => setCustomNameBn(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">
-                    {lang === 'bn' ? 'পতাকা/ইমোজি' : 'Flag Emoji'}
+                  <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                    {lang === 'bn' ? 'পতাকা' : 'Flag'}
                   </label>
                   <input
                     type="text"
@@ -246,13 +262,13 @@ export const CurrencyPickerModal: React.FC<CurrencyPickerModalProps> = ({
                     value={customFlag}
                     onChange={(e) => setCustomFlag(e.target.value)}
                     maxLength={4}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-white text-center focus:outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-slate-900 text-center focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">
                   {lang === 'bn' ? 'কারেন্সির নাম (ইংরেজি)' : 'Currency Name (EN)'}
                 </label>
                 <input
@@ -260,7 +276,7 @@ export const CurrencyPickerModal: React.FC<CurrencyPickerModalProps> = ({
                   placeholder="e.g. Kuwaiti Dinar"
                   value={customNameEn}
                   onChange={(e) => setCustomNameEn(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none"
                 />
               </div>
 
@@ -268,23 +284,23 @@ export const CurrencyPickerModal: React.FC<CurrencyPickerModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsAddingCustom(false)}
-                  className="flex-1 py-2 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-xs font-semibold cursor-pointer"
+                  className="flex-1 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-semibold cursor-pointer"
                 >
                   {lang === 'bn' ? 'বাতিল' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-md cursor-pointer flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <IconRenderer name="Check" className="w-4 h-4" />
-                  <span>{lang === 'bn' ? 'যুক্ত ও সক্রিয় করুন' : 'Save & Select'}</span>
+                  <span>{lang === 'bn' ? 'সংরক্ষণ ও প্রয়োগ করুন' : 'Save & Select'}</span>
                 </button>
               </div>
             </form>
           ) : (
             <div className="space-y-1.5">
               {filteredCurrencies.length === 0 ? (
-                <div className="p-6 text-center text-slate-400 text-xs">
+                <div className="p-6 text-center text-slate-500 text-xs">
                   {lang === 'bn' ? 'কোনো কারেন্সি পাওয়া যায়নি।' : 'No currency found.'}
                   <button
                     type="button"
@@ -292,7 +308,7 @@ export const CurrencyPickerModal: React.FC<CurrencyPickerModalProps> = ({
                       setIsAddingCustom(true);
                       setCustomCode(searchQuery.toUpperCase());
                     }}
-                    className="block mx-auto mt-2 text-emerald-400 font-bold hover:underline"
+                    className="block mx-auto mt-2 text-emerald-700 font-bold hover:underline"
                   >
                     + {searchQuery} কারেন্সি হিসেবে যোগ করুন
                   </button>
@@ -304,60 +320,55 @@ export const CurrencyPickerModal: React.FC<CurrencyPickerModalProps> = ({
                     (item.symbol === selectedCurrencySymbol && !selectedCurrencyCode);
 
                   return (
-                    <motion.button
+                    <button
                       key={item.code}
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.98 }}
                       type="button"
                       onClick={() => {
                         onSelectCurrency(item);
                         triggerConfetti();
                         onClose();
                       }}
-                      className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                      className={`w-full p-2.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-emerald-950/60 border-emerald-400/50 text-white shadow-xs'
-                          : 'bg-slate-950/50 border-slate-800/80 text-slate-300 hover:bg-slate-800/60 hover:border-slate-700'
+                          ? 'bg-emerald-50 border-emerald-300 text-slate-900 shadow-2xs'
+                          : 'bg-white border-slate-200/90 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        {/* Minimal Round Flag/Symbol Badge */}
                         <div
-                          className={`w-9 h-9 rounded-full flex items-center justify-center text-base shrink-0 font-bold ${
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0 font-bold ${
                             isSelected
-                              ? 'bg-emerald-500 text-slate-950 shadow-[0_0_10px_rgba(16,185,129,0.4)]'
-                              : 'bg-slate-800 text-slate-200 border border-slate-700'
+                              ? 'bg-emerald-600 text-white shadow-2xs'
+                              : 'bg-slate-100 text-slate-700 border border-slate-200'
                           }`}
                         >
                           {item.flag || item.symbol}
                         </div>
 
                         <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-white tracking-tight">
-                              {item.code}
-                            </span>
-                            <span className="text-xs font-black text-emerald-400">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-bold text-slate-900">{item.code}</span>
+                            <span className="text-xs font-extrabold text-emerald-700">
                               ({item.symbol})
                             </span>
                             {item.isCustom && (
-                              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
                                 কাস্টম
                               </span>
                             )}
                           </div>
-                          <p className="text-[11px] text-slate-400 truncate">
+                          <p className="text-[11px] text-slate-500 truncate">
                             {lang === 'bn' ? item.nameBn : item.nameEn}
                           </p>
                         </div>
                       </div>
 
                       {isSelected && (
-                        <div className="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center shrink-0">
-                          <IconRenderer name="Check" className="w-3.5 h-3.5 stroke-[3]" />
+                        <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                          <IconRenderer name="Check" className="w-3 h-3 stroke-[3]" />
                         </div>
                       )}
-                    </motion.button>
+                    </button>
                   );
                 })
               )}
