@@ -60,12 +60,12 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
       className="space-y-4 pb-20"
     >
       {/* Header & Quick Add */}
-      <div className="flex items-center justify-between pt-2">
+      <div className="flex items-center justify-between pt-1 px-1">
         <div>
-          <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-lg font-extrabold text-slate-900 tracking-tight">
             {t(lang, 'navExpenses')}
           </h1>
-          <p className="text-xs text-slate-500 font-medium">
+          <p className="text-xs text-slate-500 font-medium mt-0.5">
             {t(lang, 'totalSpent')}:{' '}
             <strong className="text-rose-600 font-bold">{formatMoney(summary.totalExpenses, lang)}</strong>
           </p>
@@ -74,7 +74,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
         <button
           type="button"
           onClick={onOpenAddExpense}
-          className="py-2 px-3.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105 active:scale-95"
+          className="py-2 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105 active:scale-95"
         >
           <IconRenderer name="Plus" className="w-4 h-4" />
           <span>{t(lang, 'btnAddExpense')}</span>
@@ -83,16 +83,16 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
 
       {/* Category Pills Horizontal Scroll */}
       <div className="space-y-1.5">
-        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block px-0.5">
+        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block px-1">
           {t(lang, 'filterCategory')}
         </span>
         <div className="flex items-center gap-2 overflow-x-auto pb-1.5 no-scrollbar">
           <button
             type="button"
             onClick={() => setSelectedCatId('all')}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
               selectedCatId === 'all'
-                ? 'bg-emerald-600 text-white shadow-2xs'
+                ? 'bg-[#032b21] text-white shadow-xs'
                 : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
             }`}
           >
@@ -114,9 +114,9 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                   type="button"
                   key={cat.id}
                   onClick={() => setSelectedCatId(cat.id)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition-all cursor-pointer ${
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-emerald-600 text-white border-emerald-600 font-bold shadow-2xs'
+                      ? 'bg-[#032b21] text-white border-[#032b21] shadow-xs'
                       : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >

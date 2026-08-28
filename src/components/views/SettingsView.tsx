@@ -5,7 +5,9 @@ import {
   Language,
   MonthlyAccount,
   AppStateData,
+  CurrencyOption,
 } from '../../types';
+import { WORLD_CURRENCIES } from '../../lib/currencies';
 import { t, formatMoney, formatMonthYear, formatRelativeTime } from '../../lib/i18n/formatter';
 import { IconRenderer } from '../common/IconRenderer';
 import { VaultSecurityGraphic, triggerConfetti } from '../common/Graphics';
@@ -25,6 +27,10 @@ interface SettingsViewProps {
   onDeleteAllData: () => void;
   onLogout?: () => void;
   onRegenerateSeedPhrase?: (password: string) => Promise<string[]>;
+  onOpenUndoHistory?: () => void;
+  undoCount?: number;
+  onOpenCurrencyPicker?: () => void;
+  onNavigateAdmin?: () => void;
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
@@ -42,6 +48,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onDeleteAllData,
   onLogout,
   onRegenerateSeedPhrase,
+  onOpenUndoHistory,
+  undoCount = 0,
+  onOpenCurrencyPicker,
+  onNavigateAdmin,
 }) => {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({
@@ -185,6 +195,48 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         >
           <IconRenderer name="CheckCircle" className="w-4 h-4 text-emerald-600" />
           <span>{lang === 'bn' ? 'প্রোফাইল সফলভাবে আপডেট করা হয়েছে!' : 'Profile updated successfully!'}</span>
+        </motion.div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* ADMIN CONTROL CENTER SHORTCUT (IF ADMIN)                                  */}
+      {/* ========================================================================= */}
+      {(user.isAdmin || user.role === 'admin' || user.email === 'abufaisal9500@gmail.com') && (
+        <motion.div
+          whileHover={{ scale: 1.01 }}
+          className="rounded-3xl p-5 bg-gradient-to-br from-[#032b21] via-[#054635] to-[#033427] text-white border border-emerald-400/30 shadow-lg shadow-emerald-950/20 relative overflow-hidden"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 to-lime-300 text-slate-950 flex items-center justify-center font-bold shadow-md shrink-0">
+                <IconRenderer name="Crown" className="w-6 h-6 fill-current" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm sm:text-base font-black text-white">
+                    {lang === 'bn' ? 'অ্যাডমিন কন্ট্রোল সেন্টার' : 'Admin Control Center'}
+                  </h2>
+                  <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                    SUPER ADMIN
+                  </span>
+                </div>
+                <p className="text-xs text-emerald-200/80 mt-0.5">
+                  {lang === 'bn'
+                    ? 'সকল ইউজার, লেনদেন মনিটরিং ও সিস্টেম নোটিশ ব্যবস্থাপনা'
+                    : 'Manage all registered users, monitor finances and system notices'}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={onNavigateAdmin}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-lime-400 hover:from-emerald-400 hover:to-lime-300 text-emerald-950 font-black text-xs shadow-md flex items-center gap-1.5 shrink-0 cursor-pointer transition-all active:scale-95"
+            >
+              <span>{lang === 'bn' ? 'প্রবেশ করুন' : 'Open'}</span>
+              <IconRenderer name="ChevronRight" className="w-4 h-4" />
+            </button>
+          </div>
         </motion.div>
       )}
 
@@ -458,6 +510,53 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       </div>
 
       {/* ========================================================================= */}
+      {/* 3. CURRENCY SELECTION (কারেন্সি ও দেশের মুদ্রা) */}
+      {/* ========================================================================= */}
+      <div className="bg-white border border-emerald-900/10 rounded-3xl p-5 space-y-3 shadow-xs">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-extrabold text-xs">
+              {user.currencySymbol || '৳'}
+            </div>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+              {lang === 'bn' ? 'কারেন্সি ও মুদ্রা' : 'Currency'}
+            </h2>
+          </div>
+
+          <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 font-extrabold text-xs">
+            {user.currency || 'BDT'} ({user.currencySymbol || '৳'})
+          </span>
+        </div>
+
+        {onOpenCurrencyPicker && (
+          <button
+            type="button"
+            onClick={onOpenCurrencyPicker}
+            className="w-full p-3 bg-slate-50 hover:bg-emerald-50/70 border border-slate-200/80 hover:border-emerald-300 rounded-2xl text-left flex items-center justify-between transition-all cursor-pointer shadow-2xs"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-extrabold text-sm shrink-0 shadow-2xs">
+                {user.currencySymbol || '৳'}
+              </div>
+              <div className="min-w-0">
+                <span className="text-xs font-bold text-slate-900 block truncate">
+                  {user.currency || 'BDT'} • {user.currencySymbol || '৳'}
+                </span>
+                <span className="text-[11px] text-slate-500 font-medium block">
+                  {lang === 'bn' ? 'পরিবর্তন করতে ট্যাপ করুন' : 'Tap to change currency'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-emerald-700 font-bold text-xs shrink-0">
+              <span>{lang === 'bn' ? 'সিলেক্ট করুন' : 'Change'}</span>
+              <IconRenderer name="ChevronRight" className="w-4 h-4" />
+            </div>
+          </button>
+        )}
+      </div>
+
+      {/* ========================================================================= */}
       {/* 3. MONTHLY BUDGET & STARTING MONEY */}
       {/* ========================================================================= */}
       <div className="bg-white border border-emerald-900/10 rounded-3xl p-5 space-y-3 shadow-xs">
@@ -664,6 +763,36 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
           </button>
         </div>
+
+        {onOpenUndoHistory && (
+          <button
+            type="button"
+            onClick={onOpenUndoHistory}
+            className="w-full p-3 bg-emerald-50/70 hover:bg-emerald-100/70 border border-emerald-200/80 rounded-2xl text-left flex items-center justify-between transition-colors cursor-pointer shadow-xs"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-emerald-700 text-white flex items-center justify-center shrink-0">
+                <IconRenderer name="RotateCcw" className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-xs font-bold text-slate-900 block">
+                  {lang === 'bn' ? 'অ্যাকাউন্টের পরিবর্তন ও আনডু ইতিহাস' : 'Account Activity & Undo Moves'}
+                </span>
+                <span className="text-[10px] text-emerald-800 font-medium block">
+                  {lang === 'bn'
+                    ? 'সাম্প্রতিক সব পরিবর্তন দেখুন ও ফিরিয়ে আনুন'
+                    : 'Review and revert recent account changes'}
+                </span>
+              </div>
+            </div>
+
+            {undoCount > 0 && (
+              <span className="py-1 px-2 rounded-full bg-emerald-700 text-white text-[10px] font-bold">
+                {undoCount} {lang === 'bn' ? 'টি' : 'moves'}
+              </span>
+            )}
+          </button>
+        )}
 
         <button
           type="button"

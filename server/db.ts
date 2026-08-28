@@ -21,6 +21,8 @@ export interface DbUser {
   currency: string;
   currencySymbol: string;
   tokenVersion: number; // Increment on password reset / seed recovery / logout to invalidate old sessions
+  role?: 'admin' | 'user';
+  status?: 'active' | 'suspended';
   createdAt: number;
   lastLoginAt: number;
   securityAuditLogs: Array<{
@@ -53,9 +55,12 @@ export interface UserDataPayload {
   updatedAt: number;
 }
 
+export const ADMIN_EMAILS = ['abufaisal9500@gmail.com', 'abufaisal@example.com'];
+
 const DATA_DIR = path.join(process.cwd(), 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const USERDATA_DIR = path.join(DATA_DIR, 'user_states');
+const ANNOUNCEMENT_FILE = path.join(DATA_DIR, 'announcement.json');
 
 function ensureDirectories() {
   if (!fs.existsSync(DATA_DIR)) {
@@ -150,15 +155,17 @@ export function generateDefaultStateForUser(user: DbUser): UserDataPayload {
     id: curMonthId,
     year,
     month: now.getMonth() + 1,
-    startingBalance: user.monthlyBudget || 15000,
+    startingBalance: 0,
     additionalIncome: 0,
     carryForwardAmount: 0,
     carryForward: 0,
-    targetBudget: user.monthlyBudget || 14000,
-    notes: user.preferredLanguage === 'bn' ? 'চলতি মাসের হিসাব' : 'Monthly Account',
+    targetBudget: 0,
+    notes: '',
     createdAt: Date.now(),
     updatedAt: Date.now(),
   };
+
+  const isAdminUser = user.email.toLowerCase() === 'abufaisal9500@gmail.com' || user.role === 'admin' || ADMIN_EMAILS.includes(user.email.toLowerCase());
 
   const defaultState: UserDataPayload = {
     userId: user.id,
@@ -169,11 +176,11 @@ export function generateDefaultStateForUser(user: DbUser): UserDataPayload {
       nameEn: user.nameEn,
       phone: user.phone || '',
       email: user.email,
-      monthlyBudget: user.monthlyBudget,
+      monthlyBudget: user.monthlyBudget || 0,
       institutionOrJob: user.institutionOrJob || '',
       bioBn: user.bioBn || '',
       bioEn: user.bioEn || '',
-      themeMode: user.themeMode || 'dark',
+      themeMode: user.themeMode || 'light',
       preferredLanguage: user.preferredLanguage || 'bn',
       currency: 'BDT',
       currencySymbol: '৳',
@@ -182,6 +189,8 @@ export function generateDefaultStateForUser(user: DbUser): UserDataPayload {
       seedBackupEnabled: user.seedBackupEnabled,
       seedPhraseEnabled: user.seedBackupEnabled,
       googleConnected: false,
+      role: isAdminUser ? 'admin' : 'user',
+      isAdmin: isAdminUser,
       createdAt: user.createdAt,
     },
     accounts: [defaultAccount],
@@ -194,4 +203,48 @@ export function generateDefaultStateForUser(user: DbUser): UserDataPayload {
 
   saveUserStateData(defaultState);
   return defaultState;
+}
+
+export function getAllUsers(): DbUser[] {
+  return Array.from(usersMap.values());
+}
+
+export function getAllUserStates(): Map<string, UserDataPayload> {
+  return userDataMap;
+}
+
+export function deleteUserById(userId: string): boolean {
+  if (usersMap.has(userId)) {
+    usersMap.delete(userId);
+    flushUsersToDisk();
+
+    userDataMap.delete(userId);
+    const filePath = path.join(USERDATA_DIR, `${userId}.json`);
+    if (fs.existsSync(filePath)) {
+      try {
+        fs.unlinkSync(filePath);
+      } catch (e) {
+        console.error('Failed to delete user file:', e);
+      }
+    }
+    return true;
+  }
+  return false;
+}
+
+export function getSystemAnnouncement(): any {
+  try {
+    if (fs.existsSync(ANNOUNCEMENT_FILE)) {
+      const raw = fs.readFileSync(ANNOUNCEMENT_FILE, 'utf-8');
+      return JSON.parse(raw);
+    }
+  } catch (err) {
+    console.error('Error reading announcement:', err);
+  }
+  return { id: 'default', message: '', active: false, type: 'info', updatedAt: Date.now() };
+}
+
+export function setSystemAnnouncement(announcement: any): void {
+  ensureDirectories();
+  fs.writeFileSync(ANNOUNCEMENT_FILE, JSON.stringify(announcement, null, 2), 'utf-8');
 }

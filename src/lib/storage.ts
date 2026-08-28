@@ -49,11 +49,11 @@ export function getInitialDemoState(): AppStateData {
     nameEn: 'Abu Faisal',
     bioBn: 'শিক্ষার্থী ও মেস বোর্ডার',
     bioEn: 'Student & Mess Boarder',
-    phone: '01712-345678',
-    email: 'abufaisal@example.com',
-    monthlyBudget: 15000,
-    monthlyIncome: 17000,
-    institutionOrJob: 'ঢাকা বিশ্ববিদ্যালয়',
+    phone: '',
+    email: 'abufaisal9500@gmail.com',
+    monthlyBudget: 0,
+    monthlyIncome: 0,
+    institutionOrJob: '',
     preferredLanguage: 'bn', // BANGLA IS DEFAULT
     currency: 'BDT',
     currencySymbol: '৳',
@@ -62,6 +62,8 @@ export function getInitialDemoState(): AppStateData {
     seedBackupEnabled: false,
     seedPhraseEnabled: false,
     googleConnected: false,
+    role: 'admin',
+    isAdmin: true,
     createdAt: Date.now(),
   };
 
@@ -69,108 +71,17 @@ export function getInitialDemoState(): AppStateData {
     id: currentMonthId,
     year,
     month,
-    startingBalance: 15000,
-    additionalIncome: 2000,
+    startingBalance: 0,
+    additionalIncome: 0,
     carryForwardAmount: 0,
     carryForward: 0,
-    targetBudget: 14000,
-    notes: 'মেস ও হাতখরচ বাজেট',
-    createdAt: Date.now() - 15 * 86400000,
+    targetBudget: 0,
+    notes: '',
+    createdAt: Date.now(),
     updatedAt: Date.now(),
   };
 
-  const today = getTodayDateString();
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-  const dayBefore = new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0];
-  const fiveDaysAgo = new Date(Date.now() - 5 * 86400000).toISOString().split('T')[0];
-
-  const defaultTransactions: Transaction[] = [
-    {
-      id: 'tx_demo_inc_1',
-      monthlyAccountId: currentMonthId,
-      type: 'income',
-      amount: 2000,
-      categoryId: 'father',
-      customCategoryName: 'বাবার কাছ থেকে',
-      date: fiveDaysAgo,
-      note: 'জরুরি হাতখরচ বিকাশ করেছেন',
-      paymentMethod: 'bkash',
-      createdAt: Date.now() - 5 * 86400000,
-      updatedAt: Date.now() - 5 * 86400000,
-    },
-    {
-      id: 'tx_demo_1',
-      monthlyAccountId: currentMonthId,
-      type: 'expense',
-      amount: 4500,
-      categoryId: 'hostel_rent',
-      date: fiveDaysAgo,
-      note: 'মাসের হোস্টেল সীট ভাড়া পরিশোধ',
-      paymentMethod: 'bkash',
-      createdAt: Date.now() - 5 * 86400000,
-      updatedAt: Date.now() - 5 * 86400000,
-    },
-    {
-      id: 'tx_demo_2',
-      monthlyAccountId: currentMonthId,
-      type: 'expense',
-      amount: 2400,
-      categoryId: 'grocery',
-      date: dayBefore,
-      note: 'মেসের চলতি মাসের মিলের অগ্রিম',
-      paymentMethod: 'cash',
-      createdAt: Date.now() - 2 * 86400000,
-      updatedAt: Date.now() - 2 * 86400000,
-    },
-    {
-      id: 'tx_demo_3',
-      monthlyAccountId: currentMonthId,
-      type: 'expense',
-      amount: 450,
-      categoryId: 'education',
-      date: yesterday,
-      note: 'সেমিস্টার পরীক্ষার গাইড বই ও খাতা',
-      paymentMethod: 'nagad',
-      createdAt: Date.now() - 86400000,
-      updatedAt: Date.now() - 86400000,
-    },
-    {
-      id: 'tx_demo_4',
-      monthlyAccountId: currentMonthId,
-      type: 'expense',
-      amount: 350,
-      categoryId: 'mobile',
-      date: yesterday,
-      note: 'মোবাইল রিচার্জ ও মাসিক ইন্টারনেট প্যাক',
-      paymentMethod: 'bkash',
-      createdAt: Date.now() - 86400000,
-      updatedAt: Date.now() - 86400000,
-    },
-    {
-      id: 'tx_demo_5',
-      monthlyAccountId: currentMonthId,
-      type: 'expense',
-      amount: 150,
-      categoryId: 'food',
-      date: today,
-      note: 'দুপুরের খাবার ও নাস্তা',
-      paymentMethod: 'cash',
-      createdAt: Date.now() - 3600000,
-      updatedAt: Date.now() - 3600000,
-    },
-    {
-      id: 'tx_demo_6',
-      monthlyAccountId: currentMonthId,
-      type: 'expense',
-      amount: 60,
-      categoryId: 'transport',
-      date: today,
-      note: 'ভার্সিটি যাতায়াত বাস ভাড়া',
-      paymentMethod: 'cash',
-      createdAt: Date.now() - 1800000,
-      updatedAt: Date.now() - 1800000,
-    },
-  ];
+  const defaultTransactions: Transaction[] = [];
 
   const allCategories: Category[] = [
     ...DEFAULT_EXPENSE_CATEGORIES,
@@ -204,12 +115,16 @@ export function loadAppState(): AppStateData {
       parsed.user.nameBn = parsed.user.nameBn || parsed.user.name || 'আবু ফয়সাল';
       parsed.user.nameEn = parsed.user.nameEn || 'Abu Faisal';
       parsed.user.name = parsed.user.preferredLanguage === 'bn' ? parsed.user.nameBn : parsed.user.nameEn;
-      parsed.user.bioBn = parsed.user.bioBn || 'শিক্ষার্থী ও মেস বোর্ডার';
-      parsed.user.bioEn = parsed.user.bioEn || 'Student & Mess Boarder';
-      parsed.user.phone = parsed.user.phone || '01712-345678';
-      parsed.user.email = parsed.user.email || 'abufaisal@example.com';
-      parsed.user.monthlyBudget = parsed.user.monthlyBudget || 15000;
-      parsed.user.institutionOrJob = parsed.user.institutionOrJob || 'ঢাকা বিশ্ববিদ্যালয়';
+      parsed.user.bioBn = parsed.user.bioBn || '';
+      parsed.user.bioEn = parsed.user.bioEn || '';
+      parsed.user.phone = parsed.user.phone || '';
+      parsed.user.email = parsed.user.email || 'abufaisal9500@gmail.com';
+      parsed.user.monthlyBudget = parsed.user.monthlyBudget ?? 0;
+      parsed.user.institutionOrJob = parsed.user.institutionOrJob || '';
+      if (parsed.user.email === 'abufaisal9500@gmail.com' || parsed.user.role === 'admin') {
+        parsed.user.role = 'admin';
+        parsed.user.isAdmin = true;
+      }
     } else {
       parsed.user = getInitialDemoState().user;
     }
@@ -228,7 +143,7 @@ export function loadAppState(): AppStateData {
         id: curMonth,
         year: parseInt(y, 10),
         month: parseInt(m, 10),
-        startingBalance: 15000,
+        startingBalance: 0,
         carryForwardAmount: 0,
         createdAt: Date.now(),
         updatedAt: Date.now(),

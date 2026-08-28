@@ -201,3 +201,46 @@ export const dataApi = {
     });
   },
 };
+
+export const adminApi = {
+  getStats: async (): Promise<any> => {
+    return apiFetch('/api/admin/stats');
+  },
+  getUsers: async (): Promise<{ users: any[]; total: number }> => {
+    return apiFetch('/api/admin/users');
+  },
+  getUserDetails: async (userId: string): Promise<{ user: any; appState: AppStateData }> => {
+    return apiFetch(`/api/admin/users/${userId}/details`);
+  },
+  resetUserPassword: async (userId: string, newPassword: string): Promise<{ success: boolean; message: string }> => {
+    return apiFetch(`/api/admin/users/${userId}/reset-password`, {
+      method: 'POST',
+      body: JSON.stringify({ newPassword }),
+    });
+  },
+  toggleUserStatus: async (userId: string): Promise<{ success: boolean; status: string; message: string }> => {
+    return apiFetch(`/api/admin/users/${userId}/toggle-status`, {
+      method: 'POST',
+    });
+  },
+  deleteUser: async (userId: string): Promise<{ success: boolean; message: string }> => {
+    return apiFetch(`/api/admin/users/${userId}`, {
+      method: 'DELETE',
+    });
+  },
+  getAnnouncement: async (): Promise<any> => {
+    return apiFetch('/api/admin/announcement');
+  },
+  setAnnouncement: async (params: { message: string; active: boolean; type?: string }): Promise<any> => {
+    return apiFetch('/api/admin/announcement', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  },
+};
+
+export const systemApi = {
+  getAnnouncement: async (): Promise<any> => {
+    return apiFetch('/api/system/announcement');
+  },
+};

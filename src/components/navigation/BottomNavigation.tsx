@@ -21,10 +21,11 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
 }) => {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 px-4 pb-4 pt-1 pointer-events-none flex justify-center">
-      <div className="w-full max-w-md bg-white/95 border border-slate-200/90 backdrop-blur-xl rounded-full shadow-[0_10px_30px_-5px_rgba(15,23,42,0.12),0_2px_10px_rgba(0,0,0,0.04)] px-3 py-2 flex items-center justify-between pointer-events-auto transition-all">
+      <div className="w-full max-w-md bg-[#032b21]/95 border border-emerald-500/20 backdrop-blur-xl rounded-full shadow-[0_12px_32px_-4px_rgba(3,43,33,0.5)] px-3 py-2 flex items-center justify-between pointer-events-auto transition-all">
         
         {/* Left Tab 1: Home */}
-        <button
+        <motion.button
+          whileTap={{ scale: 0.92 }}
           type="button"
           onClick={() => onTabChange('home')}
           className="relative flex-1 flex flex-col items-center justify-center transition-all cursor-pointer group py-0.5"
@@ -32,8 +33,8 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
           <div
             className={`w-9 h-8 rounded-xl flex items-center justify-center transition-all ${
               currentTab === 'home'
-                ? 'bg-emerald-100 text-emerald-800 font-bold'
-                : 'text-slate-500 group-hover:text-slate-800'
+                ? 'bg-emerald-600/40 text-lime-300 font-bold shadow-xs'
+                : 'text-emerald-300/70 group-hover:text-white'
             }`}
           >
             <IconRenderer name="Home" className="w-4 h-4 fill-current" />
@@ -41,16 +42,17 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
           <span
             className={`text-[10px] mt-0.5 tracking-tight transition-colors ${
               currentTab === 'home'
-                ? 'font-bold text-emerald-800'
-                : 'font-medium text-slate-500 group-hover:text-slate-700'
+                ? 'font-bold text-lime-300'
+                : 'font-medium text-emerald-300/70 group-hover:text-emerald-100'
             }`}
           >
             {t(lang, 'navHome')}
           </span>
-        </button>
+        </motion.button>
 
         {/* Left Tab 2: Expenses / Transactions */}
-        <button
+        <motion.button
+          whileTap={{ scale: 0.92 }}
           type="button"
           onClick={() => onTabChange('expenses')}
           className="relative flex-1 flex flex-col items-center justify-center transition-all cursor-pointer group py-0.5"
@@ -58,8 +60,8 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
           <div
             className={`w-9 h-8 rounded-xl flex items-center justify-center transition-all ${
               currentTab === 'expenses'
-                ? 'bg-emerald-100 text-emerald-800 font-bold'
-                : 'text-slate-500 group-hover:text-slate-800'
+                ? 'bg-emerald-600/40 text-lime-300 font-bold shadow-xs'
+                : 'text-emerald-300/70 group-hover:text-white'
             }`}
           >
             <IconRenderer name="CreditCard" className="w-4 h-4" />
@@ -67,30 +69,31 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
           <span
             className={`text-[10px] mt-0.5 tracking-tight transition-colors ${
               currentTab === 'expenses'
-                ? 'font-bold text-emerald-800'
-                : 'font-medium text-slate-500 group-hover:text-slate-700'
+                ? 'font-bold text-lime-300'
+                : 'font-medium text-emerald-300/70 group-hover:text-emerald-100'
             }`}
           >
             {t(lang, 'navExpenses')}
           </span>
-        </button>
+        </motion.button>
 
         {/* Center: Clean Vibrant Add '+' Button */}
         <div className="px-1.5 flex items-center justify-center">
           <motion.button
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.94 }}
+            whileHover={{ scale: 1.1, rotate: 90 }}
+            whileTap={{ scale: 0.9 }}
             type="button"
             onClick={onOpenQuickAdd}
-            className="w-13 h-11 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-md shadow-emerald-600/30 border border-emerald-500 cursor-pointer active:shadow-inner"
+            className="w-12 h-11 rounded-full bg-gradient-to-tr from-emerald-500 to-lime-400 hover:from-emerald-400 hover:to-lime-300 text-emerald-950 flex items-center justify-center shadow-lg shadow-emerald-900/40 border border-lime-300/50 cursor-pointer active:shadow-inner"
             title={t(lang, 'btnAddExpense')}
           >
-            <IconRenderer name="Plus" className="w-5 h-5 stroke-[2.5] text-white" />
+            <IconRenderer name="Plus" className="w-5 h-5 stroke-[2.8] text-emerald-950" />
           </motion.button>
         </div>
 
         {/* Right Tab 1: Reports */}
-        <button
+        <motion.button
+          whileTap={{ scale: 0.92 }}
           type="button"
           onClick={() => onTabChange('reports')}
           className="relative flex-1 flex flex-col items-center justify-center transition-all cursor-pointer group py-0.5"
@@ -98,8 +101,8 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
           <div
             className={`w-9 h-8 rounded-xl flex items-center justify-center transition-all ${
               currentTab === 'reports'
-                ? 'bg-emerald-100 text-emerald-800 font-bold'
-                : 'text-slate-500 group-hover:text-slate-800'
+                ? 'bg-emerald-600/40 text-lime-300 font-bold shadow-xs'
+                : 'text-emerald-300/70 group-hover:text-white'
             }`}
           >
             <IconRenderer name="PieChart" className="w-4 h-4" />
@@ -107,16 +110,17 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
           <span
             className={`text-[10px] mt-0.5 tracking-tight transition-colors ${
               currentTab === 'reports'
-                ? 'font-bold text-emerald-800'
-                : 'font-medium text-slate-500 group-hover:text-slate-700'
+                ? 'font-bold text-lime-300'
+                : 'font-medium text-emerald-300/70 group-hover:text-emerald-100'
             }`}
           >
             {t(lang, 'navReports')}
           </span>
-        </button>
+        </motion.button>
 
         {/* Right Tab 2: Profile & Settings */}
-        <button
+        <motion.button
+          whileTap={{ scale: 0.92 }}
           type="button"
           onClick={() => onTabChange('settings')}
           className="relative flex-1 flex flex-col items-center justify-center transition-all cursor-pointer group py-0.5"
@@ -124,8 +128,8 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
           <div
             className={`w-9 h-8 rounded-xl flex items-center justify-center transition-all ${
               currentTab === 'settings'
-                ? 'bg-emerald-100 text-emerald-800 font-bold'
-                : 'text-slate-500 group-hover:text-slate-800'
+                ? 'bg-emerald-600/40 text-lime-300 font-bold shadow-xs'
+                : 'text-emerald-300/70 group-hover:text-white'
             }`}
           >
             <IconRenderer name="User" className="w-4 h-4" />
@@ -133,13 +137,13 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
           <span
             className={`text-[10px] mt-0.5 tracking-tight transition-colors ${
               currentTab === 'settings'
-                ? 'font-bold text-emerald-800'
-                : 'font-medium text-slate-500 group-hover:text-slate-700'
+                ? 'font-bold text-lime-300'
+                : 'font-medium text-emerald-300/70 group-hover:text-emerald-100'
             }`}
           >
             {t(lang, 'navProfile')}
           </span>
-        </button>
+        </motion.button>
 
       </div>
     </div>

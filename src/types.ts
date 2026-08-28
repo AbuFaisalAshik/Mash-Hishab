@@ -38,7 +38,59 @@ export interface UserProfile {
   googleConnected: boolean;
   googleUserEmail?: string;
   lastBackupTime?: number;
+  role?: 'admin' | 'user';
+  isAdmin?: boolean;
   createdAt: number;
+}
+
+export interface AdminStats {
+  totalUsers: number;
+  activeUsersToday: number;
+  totalTransactionsCount: number;
+  totalIncomeVolume: number;
+  totalExpenseVolume: number;
+  totalSystemBalance: number;
+  dailyRegistrations: Array<{ date: string; count: number }>;
+  recentUsers: Array<{
+    id: string;
+    email: string;
+    name: string;
+    phone?: string;
+    createdAt: number;
+    lastLoginAt: number;
+    transactionCount: number;
+    currentBalance: number;
+    role: string;
+    status: 'active' | 'suspended';
+  }>;
+}
+
+export interface AdminUserItem {
+  id: string;
+  email: string;
+  name: string;
+  nameBn?: string;
+  nameEn?: string;
+  phone?: string;
+  institutionOrJob?: string;
+  monthlyBudget: number;
+  role: 'admin' | 'user';
+  status: 'active' | 'suspended';
+  createdAt: number;
+  lastLoginAt: number;
+  transactionCount: number;
+  currentBalance: number;
+  totalIncome: number;
+  totalExpense: number;
+  seedBackupEnabled: boolean;
+}
+
+export interface SystemAnnouncement {
+  id: string;
+  message: string;
+  active: boolean;
+  type: 'info' | 'warning' | 'urgent';
+  updatedAt: number;
 }
 
 export interface Category {
@@ -138,4 +190,25 @@ export interface AppStateData {
   customCategories?: Category[];
   activeMonthId?: string;
   lastSyncTimestamp?: number;
+}
+
+export type ActionCategory =
+  | 'add_expense'
+  | 'add_income'
+  | 'edit_transaction'
+  | 'delete_transaction'
+  | 'update_balance'
+  | 'update_profile'
+  | 'change_month'
+  | 'batch_update'
+  | 'other';
+
+export interface UndoHistoryItem {
+  id: string;
+  actionCategory: ActionCategory;
+  descriptionBn: string;
+  descriptionEn: string;
+  details?: string;
+  previousState: AppStateData;
+  timestamp: number;
 }

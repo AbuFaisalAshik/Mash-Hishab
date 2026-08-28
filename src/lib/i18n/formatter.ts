@@ -190,3 +190,29 @@ export function getTimeGreeting(lang: Language = 'bn', userName?: string): strin
   }
   return greeting;
 }
+
+/**
+ * Format relative time ago (e.g. "Just now", "2 minutes ago", "এইমাত্র", "২ মিনিট আগে")
+ */
+export function formatTimeAgo(timestamp: number, lang: Language = 'bn'): string {
+  const diffMs = Math.max(0, Date.now() - timestamp);
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHours = Math.floor(diffMin / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (lang === 'bn') {
+    if (diffSec < 30) return 'এইমাত্র';
+    if (diffMin < 1) return `${toBengaliNumerals(diffSec)} সেকেন্ড আগে`;
+    if (diffMin < 60) return `${toBengaliNumerals(diffMin)} মিনিট আগে`;
+    if (diffHours < 24) return `${toBengaliNumerals(diffHours)} ঘণ্টা আগে`;
+    return `${toBengaliNumerals(diffDays)} দিন আগে`;
+  }
+
+  if (diffSec < 30) return 'Just now';
+  if (diffMin < 1) return `${diffSec}s ago`;
+  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return `${diffDays}d ago`;
+}
+

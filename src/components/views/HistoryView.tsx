@@ -10,6 +10,9 @@ interface HistoryViewProps {
   categories: Category[];
   lang: Language;
   onOpenEditTransaction: (transaction: Transaction) => void;
+  undoCount?: number;
+  onOpenUndoHistory?: () => void;
+  onUndoLatest?: () => void;
 }
 
 export const HistoryView: React.FC<HistoryViewProps> = ({
@@ -17,6 +20,9 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
   categories,
   lang,
   onOpenEditTransaction,
+  undoCount = 0,
+  onOpenUndoHistory,
+  onUndoLatest,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<'all' | 'expense' | 'income'>('all');
@@ -88,15 +94,35 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
       className="space-y-4 pb-20"
     >
       {/* Header */}
-      <div className="pt-2">
-        <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-          {t(lang, 'historyTitle')}
-        </h1>
-        <p className="text-xs text-slate-500 font-medium">
-          {lang === 'bn'
-            ? 'সকল খরচ ও জমার সময়ক্রমিক পূর্ণাঙ্গ রেকর্ড'
-            : 'Complete chronological record of expenses and deposits'}
-        </p>
+      <div className="pt-1 px-1 flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-extrabold text-slate-900 tracking-tight">
+            {t(lang, 'historyTitle')}
+          </h1>
+          <p className="text-xs text-slate-500 font-medium mt-0.5">
+            {lang === 'bn'
+              ? 'সকল খরচ ও জমার সময়ক্রমিক পূর্ণাঙ্গ রেকর্ড'
+              : 'Complete chronological record of expenses and deposits'}
+          </p>
+        </div>
+
+        {onOpenUndoHistory && (
+          <motion.button
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            type="button"
+            onClick={onOpenUndoHistory}
+            className="py-1.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-emerald-50 hover:border-emerald-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+          >
+            <IconRenderer name="RotateCcw" className="w-3.5 h-3.5 text-emerald-700" />
+            <span>{lang === 'bn' ? 'আনডু ইতিহাস' : 'Undo Moves'}</span>
+            {undoCount > 0 && (
+              <span className="w-4 h-4 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center">
+                {undoCount}
+              </span>
+            )}
+          </motion.button>
+        )}
       </div>
 
       {/* Search Input */}
@@ -110,7 +136,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={t(lang, 'searchPlaceholder')}
-          className="w-full bg-white border border-slate-200 focus:border-emerald-500 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none shadow-2xs"
+          className="w-full bg-white border border-slate-200 focus:border-emerald-600 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none shadow-2xs"
         />
         {searchQuery && (
           <button
@@ -126,12 +152,12 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
       {/* Filter Chips Bar */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
         {/* Type Toggle */}
-        <div className="flex items-center p-1 bg-white border border-slate-200 rounded-xl shadow-2xs">
+        <div className="flex items-center p-1 bg-white border border-slate-200 rounded-2xl shadow-2xs">
           <button
             type="button"
             onClick={() => setTypeFilter('all')}
-            className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              typeFilter === 'all' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-slate-600'
+            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              typeFilter === 'all' ? 'bg-[#032b21] text-white shadow-2xs' : 'text-slate-600'
             }`}
           >
             {t(lang, 'filterAll')}
@@ -139,7 +165,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           <button
             type="button"
             onClick={() => setTypeFilter('expense')}
-            className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               typeFilter === 'expense' ? 'bg-rose-600 text-white shadow-2xs' : 'text-slate-600'
             }`}
           >
@@ -148,8 +174,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           <button
             type="button"
             onClick={() => setTypeFilter('income')}
-            className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              typeFilter === 'income' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-slate-600'
+            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              typeFilter === 'income' ? 'bg-emerald-700 text-white shadow-2xs' : 'text-slate-600'
             }`}
           >
             {t(lang, 'filterIncome')}
@@ -160,7 +186,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-medium text-slate-700 focus:outline-none focus:border-emerald-500 shadow-2xs cursor-pointer"
+          className="bg-white border border-slate-200 rounded-2xl px-3 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:border-emerald-600 shadow-2xs cursor-pointer"
         >
           <option value="all">
             {t(lang, 'filterCategory')}: {t(lang, 'filterAll')}
@@ -176,7 +202,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
         <select
           value={sortOrder}
           onChange={(e) => setSortOrder(e.target.value as any)}
-          className="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-medium text-slate-700 focus:outline-none focus:border-emerald-500 shadow-2xs cursor-pointer"
+          className="bg-white border border-slate-200 rounded-2xl px-3 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:border-emerald-600 shadow-2xs cursor-pointer"
         >
           <option value="date_desc">{t(lang, 'sortByDateDesc')}</option>
           <option value="date_asc">{t(lang, 'sortByDateAsc')}</option>

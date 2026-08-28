@@ -11,6 +11,12 @@ import {
   getUserStateData,
   saveUserStateData,
   generateDefaultStateForUser,
+  getAllUsers,
+  getAllUserStates,
+  deleteUserById,
+  getSystemAnnouncement,
+  setSystemAnnouncement,
+  ADMIN_EMAILS,
 } from './server/db';
 import {
   hashPassword,
@@ -70,6 +76,21 @@ function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunctio
   req.user = user;
   req.tokenPayload = payload;
   next();
+}
+
+function requireAdmin(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  requireAuth(req, res, () => {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const email = (user.email || '').toLowerCase().trim();
+    const isAdmin = user.role === 'admin' || email === 'abufaisal9500@gmail.com' || ADMIN_EMAILS.includes(email);
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Access denied: Admin privileges required' });
+    }
+    next();
+  });
 }
 
 // =========================================================================
@@ -707,7 +728,336 @@ app.delete('/api/data/clear', requireAuth, (req: AuthenticatedRequest, res: Resp
 });
 
 // =========================================================================
-// 3. VITE INTEGRATION / STATIC SERVING
+// 3. ADMIN PANEL API ROUTES
+// =========================================================================
+
+/**
+ * 3.1 Admin Overview & System Stats
+ */
+app.get('/api/admin/stats', requireAdmin, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const users = getAllUsers();
+    const userStates = getAllUserStates();
+
+    let totalTransactionsCount = 0;
+    let totalIncomeVolume = 0;
+    let totalExpenseVolume = 0;
+    let totalSystemBalance = 0;
+
+    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    let activeUsersToday = 0;
+
+    const userSummaries = users.map((u) => {
+      if (u.lastLoginAt > oneDayAgo) {
+        activeUsersToday++;
+      }
+
+      const uState = userStates.get(u.id);
+      let txCount = 0;
+      let uIncome = 0;
+      let uExpense = 0;
+      let startingBal = 0;
+
+      if (uState) {
+        txCount = (uState.transactions || []).length;
+        (uState.transactions || []).forEach((tx: any) => {
+          const amt = Number(tx.amount) || 0;
+          if (tx.type === 'income') {
+            uIncome += amt;
+          } else {
+            uExpense += amt;
+          }
+        });
+        (uState.accounts || []).forEach((acc: any) => {
+          startingBal += Number(acc.startingBalance) || 0;
+        });
+      }
+
+      totalTransactionsCount += txCount;
+      totalIncomeVolume += uIncome;
+      totalExpenseVolume += uExpense;
+      totalSystemBalance += startingBal + uIncome - uExpense;
+
+      const isAdminUser = u.email.toLowerCase() === 'abufaisal9500@gmail.com' || u.role === 'admin' || ADMIN_EMAILS.includes(u.email.toLowerCase());
+
+      return {
+        id: u.id,
+        email: u.email,
+        name: u.name || u.nameBn || u.nameEn || u.email.split('@')[0],
+        nameBn: u.nameBn,
+        nameEn: u.nameEn,
+        phone: u.phone,
+        institutionOrJob: u.institutionOrJob,
+        monthlyBudget: u.monthlyBudget || 0,
+        role: (isAdminUser ? 'admin' : 'user') as 'admin' | 'user',
+        status: (u.status || 'active') as 'active' | 'suspended',
+        createdAt: u.createdAt,
+        lastLoginAt: u.lastLoginAt,
+        transactionCount: txCount,
+        currentBalance: startingBal + uIncome - uExpense,
+        totalIncome: uIncome,
+        totalExpense: uExpense,
+        seedBackupEnabled: !!u.seedBackupEnabled,
+      };
+    });
+
+    // Daily registrations in last 7 days
+    const dailyRegistrations: Array<{ date: string; count: number }> = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 86400000);
+      const dateStr = d.toISOString().split('T')[0];
+      const startOfDay = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+      const endOfDay = startOfDay + 86400000;
+      const count = users.filter((u) => u.createdAt >= startOfDay && u.createdAt < endOfDay).length;
+      dailyRegistrations.push({ date: dateStr, count });
+    }
+
+    // Sort recent users
+    const recentUsers = [...userSummaries]
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .slice(0, 10);
+
+    return res.json({
+      totalUsers: users.length,
+      activeUsersToday,
+      totalTransactionsCount,
+      totalIncomeVolume,
+      totalExpenseVolume,
+      totalSystemBalance,
+      dailyRegistrations,
+      recentUsers,
+    });
+  } catch (err) {
+    console.error('Admin stats error:', err);
+    return res.status(500).json({ error: 'Failed to generate admin stats' });
+  }
+});
+
+/**
+ * 3.2 List All Registered Users with Full Metrics
+ */
+app.get('/api/admin/users', requireAdmin, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const users = getAllUsers();
+    const userStates = getAllUserStates();
+
+    const list = users.map((u) => {
+      const uState = userStates.get(u.id);
+      let txCount = 0;
+      let uIncome = 0;
+      let uExpense = 0;
+      let startingBal = 0;
+
+      if (uState) {
+        txCount = (uState.transactions || []).length;
+        (uState.transactions || []).forEach((tx: any) => {
+          const amt = Number(tx.amount) || 0;
+          if (tx.type === 'income') {
+            uIncome += amt;
+          } else {
+            uExpense += amt;
+          }
+        });
+        (uState.accounts || []).forEach((acc: any) => {
+          startingBal += Number(acc.startingBalance) || 0;
+        });
+      }
+
+      const isAdminUser = u.email.toLowerCase() === 'abufaisal9500@gmail.com' || u.role === 'admin' || ADMIN_EMAILS.includes(u.email.toLowerCase());
+
+      return {
+        id: u.id,
+        email: u.email,
+        name: u.name || u.nameBn || u.nameEn || u.email.split('@')[0],
+        nameBn: u.nameBn,
+        nameEn: u.nameEn,
+        phone: u.phone,
+        institutionOrJob: u.institutionOrJob,
+        monthlyBudget: u.monthlyBudget || 0,
+        role: isAdminUser ? 'admin' : 'user',
+        status: u.status || 'active',
+        createdAt: u.createdAt,
+        lastLoginAt: u.lastLoginAt,
+        transactionCount: txCount,
+        currentBalance: startingBal + uIncome - uExpense,
+        totalIncome: uIncome,
+        totalExpense: uExpense,
+        seedBackupEnabled: !!u.seedBackupEnabled,
+      };
+    });
+
+    // Sort by newest first
+    list.sort((a, b) => b.createdAt - a.createdAt);
+
+    return res.json({ users: list, total: list.length });
+  } catch (err) {
+    console.error('Admin users list error:', err);
+    return res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+/**
+ * 3.3 Get Detailed User Data & Transactions
+ */
+app.get('/api/admin/users/:userId/details', requireAdmin, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const targetUser = findUserById(userId);
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const state = getUserStateData(userId) || generateDefaultStateForUser(targetUser);
+
+    return res.json({
+      user: {
+        id: targetUser.id,
+        email: targetUser.email,
+        name: targetUser.name,
+        nameBn: targetUser.nameBn,
+        nameEn: targetUser.nameEn,
+        phone: targetUser.phone,
+        institutionOrJob: targetUser.institutionOrJob,
+        monthlyBudget: targetUser.monthlyBudget,
+        preferredLanguage: targetUser.preferredLanguage,
+        createdAt: targetUser.createdAt,
+        lastLoginAt: targetUser.lastLoginAt,
+        status: targetUser.status || 'active',
+        role: targetUser.role || 'user',
+        seedBackupEnabled: targetUser.seedBackupEnabled,
+        securityAuditLogs: targetUser.securityAuditLogs || [],
+      },
+      appState: state,
+    });
+  } catch (err) {
+    console.error('Admin user details error:', err);
+    return res.status(500).json({ error: 'Failed to fetch user details' });
+  }
+});
+
+/**
+ * 3.4 Admin Reset User Password
+ */
+app.post('/api/admin/users/:userId/reset-password', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { newPassword } = req.body;
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    const targetUser = findUserById(userId);
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    targetUser.passwordHash = await hashPassword(newPassword);
+    targetUser.tokenVersion = (targetUser.tokenVersion || 1) + 1; // Invalidate current user sessions
+    targetUser.securityAuditLogs.push({
+      id: `log_${Date.now()}`,
+      type: 'password_reset',
+      timestamp: Date.now(),
+      detail: `Password reset by administrator (${req.user?.email})`,
+      ip: getClientIp(req),
+    });
+
+    saveUser(targetUser);
+
+    return res.json({
+      success: true,
+      message: `Password successfully updated for ${targetUser.email}`,
+    });
+  } catch (err) {
+    console.error('Admin reset password error:', err);
+    return res.status(500).json({ error: 'Failed to reset password' });
+  }
+});
+
+/**
+ * 3.5 Admin Toggle User Status (Active / Suspended)
+ */
+app.post('/api/admin/users/:userId/toggle-status', requireAdmin, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const targetUser = findUserById(userId);
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (targetUser.email === 'abufaisal9500@gmail.com') {
+      return res.status(400).json({ error: 'Main administrator cannot be suspended' });
+    }
+
+    targetUser.status = targetUser.status === 'suspended' ? 'active' : 'suspended';
+    saveUser(targetUser);
+
+    return res.json({
+      success: true,
+      status: targetUser.status,
+      message: `User status changed to ${targetUser.status}`,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to toggle status' });
+  }
+});
+
+/**
+ * 3.6 Admin Delete User
+ */
+app.delete('/api/admin/users/:userId', requireAdmin, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const targetUser = findUserById(userId);
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (targetUser.email === 'abufaisal9500@gmail.com') {
+      return res.status(400).json({ error: 'Main administrator account cannot be deleted' });
+    }
+
+    deleteUserById(userId);
+    return res.json({ success: true, message: 'User and data permanently removed' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to delete user' });
+  }
+});
+
+/**
+ * 3.7 Admin System Announcement Broadcast
+ */
+app.get('/api/admin/announcement', requireAdmin, (_req: AuthenticatedRequest, res: Response) => {
+  return res.json(getSystemAnnouncement());
+});
+
+app.post('/api/admin/announcement', requireAdmin, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { message, active, type } = req.body;
+    const announcement = {
+      id: `ann_${Date.now()}`,
+      message: message || '',
+      active: !!active,
+      type: type || 'info',
+      updatedAt: Date.now(),
+    };
+    setSystemAnnouncement(announcement);
+    return res.json({ success: true, announcement });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to update announcement' });
+  }
+});
+
+/**
+ * 3.8 Public System Announcement for all clients
+ */
+app.get('/api/system/announcement', (_req: Request, res: Response) => {
+  const ann = getSystemAnnouncement();
+  return res.json(ann.active ? ann : { active: false });
+});
+
+// =========================================================================
+// 4. VITE INTEGRATION / STATIC SERVING
 // =========================================================================
 async function start() {
   if (process.env.NODE_ENV !== 'production') {

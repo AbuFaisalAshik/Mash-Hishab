@@ -31,7 +31,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
   const [confirmPassword, setConfirmPassword] = useState('');
   const [nameBn, setNameBn] = useState('');
   const [nameEn, setNameEn] = useState('');
-  const [monthlyBudget, setMonthlyBudget] = useState('15000');
+  const [monthlyBudget, setMonthlyBudget] = useState('0');
   const [institutionOrJob, setInstitutionOrJob] = useState('');
   const [createSeedPhrase, setCreateSeedPhrase] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -113,7 +113,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
     setIsLoading(true);
 
     try {
-      const budgetNum = parseFloat(monthlyBudget.replace(/,/g, '')) || 15000;
+      const budgetNum = parseFloat(monthlyBudget.replace(/,/g, '')) || 0;
       const res = await authApi.register({
         email,
         password,
@@ -284,9 +284,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between relative overflow-hidden font-sans select-none">
+    <div className="min-h-screen app-mint-gradient text-slate-900 flex flex-col justify-between relative overflow-hidden font-sans select-none">
+      {/* Background Decorative Grid and Glow */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute inset-0 app-grid-overlay opacity-50" />
+        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[480px] h-[480px] bg-gradient-to-b from-lime-300/40 via-emerald-300/30 to-transparent rounded-full blur-3xl pointer-events-none" />
+      </div>
+
       {/* Top Header Navigation */}
-      <header className="relative z-10 px-6 py-4 flex items-center justify-between max-w-xl mx-auto w-full border-b border-slate-200/60 bg-white/70 backdrop-blur-xs">
+      <header className="relative z-10 px-6 py-4 flex items-center justify-between max-w-xl mx-auto w-full border-b border-emerald-900/10 bg-white/80 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-emerald-700 flex items-center justify-center text-white shadow-xs">
             <span className="font-bold text-lg">ম</span>
